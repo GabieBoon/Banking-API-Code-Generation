@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<title>Transactions</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+
+	<link href="https://fonts.googleapis.com/css?family=Dosis:400,700" rel="stylesheet" />
+	<link href="css/get-transactions-style.css" rel="stylesheet" />
+
+	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<!-- THIS IS THE RIGHT JQUERY-->
+	<script src="/js/findGetParameter.js" type='text/javascript'></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+		crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+		integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+		crossorigin="anonymous"></script>
+
+	<!-- <script src="js/get-transactions-script.js"></script> -->
+
+
+	<script type="text/javascript">
+
+		function showTransactions(transactions) {
+			console.log(transactions);
+			console.time('showTransactions');
+			var userInfo;
+			var userAccounts;
+
+			var iban = findGetParameter("iban");
+			var withdrawals;
+			var deposits;
+			var transactions;
+			var type = findGetParameter("type");
+			var id = findGetParameter("id");
+
+
+			if (transactions.length > 0) {
+
+				if (iban) {
+					$("#transactionTitle").text("Transactions of: " + iban);
+				} else if (id) {
+					$("#transactionTitle").text("Transaction with id: " + id);
+				} else if (type) {
+
+					switch (type) {
+						case "transaction":
+							$("#transactionTitle").text("Transactions of the Swaggerbank");
+							break;
+						case "deposit":
+							$("#transactionTitle").text("Deposits of the Swaggerbank");
+							break;
+						case "withdrawal":
+							$("#transactionTitle").text("Withdrawals of the Swaggerbank");
+							break;
+						default:
+							break;
+					}
+				} else {
+					$("#transactionTitle").text("All Transactions of the Swaggerbank");
+				}
+
+
+				for (let index = 0; index < transactions.length; index++) {
+					const element = transactions[index];
+
+					switch (element.Type) {
+						case "transaction":
+							$("#transactionsList").append('<a href="/get-transactions?id=' + element.Id + '"><li class=""><p>From IBAN: ' + element.FromIban + ', To IBAN: ' + element.ToIban + ',  Amount: €' + element.Amount + ',  Type: ' + element.Type + ', Performed by: ' + element.PerformedBy + '</p></li></a>');
+							break;
+						case "deposit":
+							$("#transactionsList").append('<a href="/get-transactions?id=' + element.Id + '"><li class=""><p>To IBAN: ' + element.ToIban + ',  Amount: €' + element.Amount + ',  Type: ' + element.Type + ', Performed by: ' + element.PerformedBy + '</p></li></a>');
+							break;
+						case "withdrawal":
+							$("#transactionsList").append('<a href="/get-transactions?id=' + element.Id + '"><li class=""><p>From IBAN: ' + element.FromIban + ',  Amount: €' + element.Amount + ',  Type: ' + element.Type + ', Performed by: ' + element.PerformedBy + '</p></li></a>');
+							break;
+						default:
+							break;
+					}
+				}
+			} else {
+
+				if (iban) {
+					$("#transactionTitle").text("There are no transactions for: " + iban);
+				} else if (id) {
+					$("#transactionTitle").text("There is no transaction with id: " + id);
+				} else if (type) {
+
+					switch (type) {
+						case "transaction":
+							$("#transactionTitle").text("There are no transactions of the Swaggerbank");
+							break;
+						case "deposit":
+							$("#transactionTitle").text("There are no deposits of the Swaggerbank");
+							break;
+						case "withdrawal":
+							$("#transactionTitle").text("There are no withdrawals of the Swaggerbank");
+							break;
+						default:
+							break;
+					}
+				} else {
+					$("#transactionTitle").text("There are no transactions to show");
+				}
+
+			}
+			console.timeEnd('showTransactions');
+		}
+
+
+		function showMenuLinks(userInfo) {
+			var iban = findGetParameter("iban");
+			// var type = findGetParameter("type");
+
+
+			if (userInfo.Role === "USER") {
+				$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/dashboard" title="Return to the previous page">&laquo; Go back</a>');
+				
+				$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions?iban=' + iban + '">Get all Transactions</a>');
+				$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions?iban=' + iban + '&type=DEPOSIT">Get Deposits</a>');
+				$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions?iban=' + iban + '&type=WITHDRAWAL">Get Withdrawals</a>');
+				$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions?iban=' + iban + '&type=TRANSACTION">Get Transactions</a>');
+
+			} else {
+				$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/employeeTools" title="Return to the previous page">&laquo; Go back</a>');
+				
+				if (iban) {
+					$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions?iban=' + iban + '">Get all Transactions</a>');
+					$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions?iban=' + iban + '&type=DEPOSIT">Get Deposits</a>');
+					$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions?iban=' + iban + '&type=WITHDRAWAL">Get Withdrawals</a>');
+					$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions?iban=' + iban + '&type=TRANSACTION">Get Transactions</a>');
+				} else {
+					$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions">Get all Transactions</a>');
+					$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions?type=DEPOSIT">Get Deposits</a>');
+					$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions?type=WITHDRAWAL">Get Withdrawals</a>');
+					$("#menu").append('<a type="button" class="btn btn-primary m-2" href="/get-transactions?type=TRANSACTION">Get Transactions</a>');
+				}
+			}
+
+
+
+
+		}
+
+
+
+		$(document).ready(function () {
+			var userInfo;
+			var userAccounts;
+
+			var iban = findGetParameter("iban");
+			var withdrawals;
+			var deposits;
+			var transactions;
+			var type = findGetParameter("type");
+			var id = findGetParameter("id");
+
+			var url;
+
+			//get current logged in user info
+			$.ajax({
+				async: false,
+				type: "GET",
+				url: "/userinfo",
+				data: "",
+				contentType: "application/json",
+				success: function (data) {
+					userInfo = data;
+					showMenuLinks(userInfo);
+				}
+			});
+
+
+
+
+			//determine ajax url
+			if (iban && type) {// "/transactions?iban={iban}&type={type}"
+				switch (type) {
+					case "TRANSACTION":
+						url = "/transactions/iban/" + iban;
+						break;
+					case "DEPOSIT":
+						url = "/transactions?toIban=" + iban;
+						break;
+					case "WITHDRAWAL":
+						url = "/transactions?fromIban=" + iban;
+						break;
+					default:
+						break;
+				}
+			} else if (iban){// "/transactions?iban={iban}
+				url = "/transactions/iban/" + iban;
+			} else if (type) {// "/transactions?type={type}"
+				url = "/transactions?type=" + type;
+			} else if (id) { // "/transactions?id={id}"
+				url = "/transactions/" + id;
+			} else {
+				url = "/transactions"; // get all transactions
+			}
+
+			//execute ajax call
+			if (url) {
+				$.ajax({
+					async: false,
+					type: "GET",
+					url: url,
+					data: "",
+					contentType: "application/json",
+					success: function (data) {
+						transactions = data;
+						showTransactions(transactions);
+					}
+				});
+			}
+
+
+
+
+
+
+		});
+
+
+
+	</script>
+</head>
+
+<body>
+	<header>
+		<h1>Sw@gger Bank</h1>
+		<nav id="menu">
+
+		</nav>
+	</header>
+	<main>
+		<h2 id="transactionTitle"></h2>
+		<ul id="transactionsList" class="list"></ul>
+	</main>
+	<!-- <div id="root">
+		Search for iban from: <input type="text" id="ibanFrom" name="fname"><br>
+		<input type="submit" onclick="getTransactionsByFromIban()" id="ibanFromButton" value="Find">
+		</br>
+		Search for iban to: <input type="text" id="ibanTo" name="fname"><br>
+		<input type="submit" id="ibanToButton" value="Find">
+		</br>
+		Search for performed by: <input type="text" id="performedBy" name="fname"><br>
+		<input type="submit" id="performedByButton" value="Find">
+	</div> -->
+
+</body>
+
+</html>
